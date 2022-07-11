@@ -1,0 +1,24 @@
+{
+  "name": "nodejs-postgresql",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www",
+    "test": "DEBUG=nodejs-posgresql:* npm start",
+    "drop": "node ./scripts/drop.js",
+    "init": "node ./scripts/init.js",
+    "reset": "npm run drop && npm run init"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "morgan": "~1.9.1",
+    "node-fetch": "2.6.1",
+    "pg": "^8.7.3",
+    "string-similarity": "^4.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
