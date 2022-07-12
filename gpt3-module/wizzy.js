@@ -34,6 +34,8 @@ async function completion_query(prompt, options) {
         "stop": options.stop,
     }
 
+    console.log(body);
+
     const responseRaw = await fetch(url, {
         method: 'POST',
         headers,
@@ -101,6 +103,7 @@ async function get_philosopher_response({topic}) {
                 return answer;
             }
         }
+
         if(response != "") {
             console.log(`reponse ${j}`, response + "\n")
             answer += response;
@@ -108,7 +111,7 @@ async function get_philosopher_response({topic}) {
         }
     }
 
-    return JSON.stringify(answer);
+    return answer;
 }
 
 async function ask(Q) {
@@ -120,7 +123,7 @@ async function ask(Q) {
     // await get_philosopher_response({topic: "what is the best wisdom to survive a bear market?"});
     const Q = await prompt(" I don't know you you heard something about me, what is your question: ");
     await get_philosopher_response({topic: Q});
-})()*/;
+})()*/
 
 module.exports = {
     ask

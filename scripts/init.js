@@ -9,6 +9,7 @@ const INIT = `
         question TEXT NOT NULL,
         answer TEXT NOT NULL,
         author character varying(255) NOT NULL,
+        public BOOLEAN NOT NULL DEFAULT FALSE,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
     );

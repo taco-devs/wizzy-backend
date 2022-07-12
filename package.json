@@ -1,10 +1,10 @@
 {
-  "name": "nodejs-postgresql",
+  "name": "wizzy-backend",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "DEBUG=nodejs-posgresql:* npm start",
+    "test": "DEBUG=wizzy-backend:* npm start",
     "drop": "node ./scripts/drop.js",
     "init": "node ./scripts/init.js",
     "reset": "npm run drop && npm run init"
@@ -16,6 +16,8 @@
     "morgan": "~1.9.1",
     "node-fetch": "2.6.1",
     "pg": "^8.7.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "string-similarity": "^4.0.4"
   },
   "devDependencies": {

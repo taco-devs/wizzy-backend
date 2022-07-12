@@ -53,9 +53,7 @@ function validateCreate(question) {
 async function create(question) {
     validateCreate(question);
 
-    const answer = await wizzy.ask(question);
-
-    console.log('answer', answer);
+    const answer = await wizzy.ask(question.question);
 
     const result = await db.query(
       'INSERT INTO question(question, answer, author) VALUES ($1, $2, $3) RETURNING *',
@@ -67,7 +65,7 @@ async function create(question) {
       message = 'Quote created successfully';
     }
   
-    return {message};
+    return {message, result};
 }
   
 module.exports = {
