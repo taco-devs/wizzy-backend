@@ -59,6 +59,7 @@ async function create(question) {
       'INSERT INTO question(question, answer, author) VALUES ($1, $2, $3) RETURNING *',
       [question.question, answer, question.author]
     );
+    
     let message = 'Error in creating quote';
   
     if (result.length) {
