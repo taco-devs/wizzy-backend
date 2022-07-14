@@ -7,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var accountsRouter = require('./routes/accounts');
 var questionsRouter = require('./routes/questions');
+const verifyToken = require('./routes/validate-token');
 
 var app = express();
 
@@ -22,6 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/accounts', accountsRouter);
-app.use('/questions', questionsRouter);
+app.use('/questions', verifyToken, questionsRouter);
 
 module.exports = app;

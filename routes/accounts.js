@@ -3,6 +3,8 @@ var express = require("express");
 var router = express.Router();
 const Joi = require("@hapi/joi");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const accounts = require('../services/accounts');
 
@@ -67,10 +69,14 @@ router.post('/login', async (req, res) => {
   const validPassword = await bcrypt.compare(req.body.password, account.password);
   if (!validPassword) return res.status(400).json({ error: 'Invalid Password' })
   
-  res.json({
-      error: null,
-      data: 'Successfull login!'
-  });
+  const token = jwt.sign({
+      name: account.username
+  }, process.env.TOKEN_SECRET)
+
+  res.header('auth-token', token).json({
+    error: null,
+    data: {token}
+  })
 })
 
 module.exports = router;
