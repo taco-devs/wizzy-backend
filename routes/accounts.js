@@ -52,4 +52,25 @@ router.post("/register", async (req, res) => {
   }
 });
 
+/* POST Login */
+
+router.post('/login', async (req, res) => {
+  // validaciones
+  const { error } = accountSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message })
+  
+  const {result} = await accounts.getAccountByEmail(req.body);
+  if (result.length < 1) return res.status(400).json({ error: 'User not found' });
+
+  const account = result[0];
+
+  const validPassword = await bcrypt.compare(req.body.password, account.password);
+  if (!validPassword) return res.status(400).json({ error: 'Invalid Password' })
+  
+  res.json({
+      error: null,
+      data: 'Successfull login!'
+  });
+})
+
 module.exports = router;

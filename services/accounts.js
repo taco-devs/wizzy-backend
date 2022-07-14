@@ -24,8 +24,6 @@ async function getAccountByEmail(account) {
     'SELECT * FROM account WHERE email = $1;',
     [account.email]
   );
-  
-  console.log(result);
 
   let message = 'No Accounts Found';
 
