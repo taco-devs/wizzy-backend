@@ -13,7 +13,8 @@ const INIT_TABLE_QUESTION = `
     CREATE TABLE question (
         id bigint DEFAULT nextval('question_id_seq'::regclass) NOT NULL PRIMARY KEY,
         question TEXT NOT NULL,
-        answer TEXT NOT NULL,
+        slug TEXT NOT NULL,
+        answer TEXT,
         author character varying(255) NOT NULL,
         public BOOLEAN NOT NULL DEFAULT FALSE,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -33,10 +34,10 @@ const INIT_TABLE_ACCOUNT = `
 `
 
 const INIT_INSERT = `
-    INSERT INTO question (question, answer, author) VALUES 
-    ('1 +1 ?', '2', 'irving'), 
-    ('1 + 2 ?', '3', 'irving'), 
-    ('1 + 1 + 2 ?', '4', 'irving');
+    INSERT INTO question (question, slug, author) VALUES 
+    ('1 +1 ?', '1-1', 'irving'), 
+    ('1 + 2 ?', '1-2', 'irving'), 
+    ('1 + 1 + 2 ?', '1-1-2', 'irving');
 `
 
 

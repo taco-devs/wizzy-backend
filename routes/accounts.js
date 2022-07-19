@@ -57,6 +57,8 @@ router.post("/register", async (req, res) => {
 /* POST Login */
 
 router.post('/login', async (req, res) => {
+
+  console.log(req.body);
   // validaciones
   const { error } = accountSchema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message })

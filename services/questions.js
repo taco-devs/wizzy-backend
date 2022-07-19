@@ -2,7 +2,9 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../config');
-const wizzy = require('../gpt3-module/wizzy');
+const slug = require("slug");
+const short = require("short-uuid");
+// const wizzy = require('../gpt3-module/wizzy');
 
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
@@ -53,11 +55,15 @@ function validateCreate(question) {
 async function create(question) {
     validateCreate(question);
 
-    const answer = await wizzy.ask(question.question);
+    // const answer = await wizzy.ask(question.question);
+    const pre_slug = slug(question.question);
+    const question_uuid = short.generate();
+
+    const question_slug = pre_slug + "-" + question_uuid;
 
     const result = await db.query(
-      'INSERT INTO question(question, answer, author) VALUES ($1, $2, $3) RETURNING *',
-      [question.question, answer, question.author]
+      'INSERT INTO question(question, slug, author) VALUES ($1, $2, $3) RETURNING *',
+      [question.question, question_slug, question.author]
     );
     
     let message = 'Error in creating quote';
