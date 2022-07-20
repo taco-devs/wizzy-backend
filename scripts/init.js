@@ -25,6 +25,7 @@ const INIT_TABLE_QUESTION = `
 const INIT_TABLE_ACCOUNT = `
     CREATE TABLE account (
         id bigint DEFAULT nextval('account_id_seq'::regclass) NOT NULL PRIMARY KEY,
+        slug_id TEXT NOT NULL,
         username character varying(255) NOT NULL,
         email character varying(255) NOT NULL,
         password TEXT NOT NULL,

@@ -4,8 +4,8 @@ const db = require('./db');
 /* CREATE USER */
 async function createAccount(account) {
   const result = await db.query(
-    'INSERT INTO account(email, username, password) VALUES ($1, $2, $3) RETURNING *;',
-    [account.email, account.username, account.password]
+    'INSERT INTO account(email, slug_id, username, password) VALUES ($1, $2, $3, $4) RETURNING *;',
+    [account.email, account.slug_id, account.username, account.password]
   );
 
   let message = 'Error in creating account';

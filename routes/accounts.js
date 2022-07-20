@@ -4,7 +4,7 @@ var router = express.Router();
 const Joi = require("@hapi/joi");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const short = require("short-uuid");
 
 const accounts = require('../services/accounts');
 
@@ -36,9 +36,13 @@ router.post("/register", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const password = await bcrypt.hash(req.body.password, salt);
 
+  // Generate a random slug_id
+  const slug_id = short.generate();
+
   // Account Object
   const account = {
     username: req.body.username || req.body.email,
+    slug_id,
     email: req.body.email,
     password,
   };
@@ -72,7 +76,7 @@ router.post('/login', async (req, res) => {
   if (!validPassword) return res.status(400).json({ error: 'Invalid Password' })
   
   const token = jwt.sign({
-      name: account.username
+      slug_id: account.slug_id,
   }, process.env.TOKEN_SECRET)
 
   res.header('auth-token', token).json({
