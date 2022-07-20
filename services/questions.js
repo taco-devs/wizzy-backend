@@ -4,6 +4,7 @@ const helper = require('../helper');
 const config = require('../config');
 const slug = require("slug");
 const short = require("short-uuid");
+const jwt = require("jsonwebtoken");
 // const wizzy = require('../gpt3-module/wizzy');
 
 async function getMultiple(page = 1) {
@@ -25,8 +26,6 @@ async function getMultiple(page = 1) {
 /* Validate CREATE */
 function validateCreate(question) {
     let messages = [];
-  
-    console.log(question);
   
     if (!question) {
       messages.push('No question is provided');
@@ -52,7 +51,10 @@ function validateCreate(question) {
     }
 }
 
-async function create(question) {
+async function create(req) {
+
+    const question = req.body;
+
     validateCreate(question);
 
     // const answer = await wizzy.ask(question.question);
@@ -61,13 +63,29 @@ async function create(question) {
 
     const question_slug = pre_slug + "-" + question_uuid;
 
+    // Get account id from the one who is validating the token
+    const token = req.headers['auth-token'];
+    const { slug_id } = jwt.decode(token);
+
+    // Get account from the slug
+    const account = await db.query(
+      'SELECT id FROM account WHERE slug_id = $1',
+      [slug_id]
+    )
+    
+    let message = 'Error in creating question';
+    
+    if (!account.length) {
+      return { message };
+    }
+
+    const account_id = account[0].id;
+
     const result = await db.query(
-      'INSERT INTO question(question, slug, author) VALUES ($1, $2, $3) RETURNING *',
-      [question.question, question_slug, question.author]
+      'INSERT INTO question(question, slug, author, account_id) VALUES ($1, $2, $3, $4) RETURNING *',
+      [question.question, question_slug, question.author, account_id]
     );
     
-    let message = 'Error in creating quote';
-  
     if (result.length) {
       message = 'Quote created successfully';
     }

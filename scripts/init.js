@@ -18,7 +18,8 @@ const INIT_TABLE_QUESTION = `
         author character varying(255) NOT NULL,
         public BOOLEAN NOT NULL DEFAULT FALSE,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+        updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        account_id bigint REFERENCES account(id) NOT NULL
     );
 `
 
@@ -53,12 +54,12 @@ const INIT_INSERT = `
 async function query() {
     await pool.query(INIT_SEQ);
     console.log('-- INIT SEQ "question_id_seq, account_id_seq" SUCCESSFUL');
-    await pool.query(INIT_TABLE_QUESTION);
-    console.log('-- INIT TABLE "question" SUCCESSFUL');
     await pool.query(INIT_TABLE_ACCOUNT);
     console.log('-- INIT TABLE "account" SUCCESSFUL');
-    await pool.query(INIT_INSERT);
-    console.log('-- INIT INSERT "questions" SUCCESSFUL');
+    await pool.query(INIT_TABLE_QUESTION);
+    console.log('-- INIT TABLE "question" SUCCESSFUL');
+    // await pool.query(INIT_INSERT);
+    // console.log('-- INIT INSERT "questions" SUCCESSFUL');
 }
 
 query();

@@ -16,7 +16,7 @@ router.get('/', async function(req, res, next) {
 /* POST quotes */
 router.post('/',  async function(req, res, next) {
     try {
-      res.json(await questions.create(req.body));
+      res.json(await questions.create(req));
     } catch (err) {
       console.error(`Error while posting question `, err.message);
       next(err);
