@@ -3,13 +3,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 const bodyparser = require('body-parser');
 var logger = require('morgan');
+var cors = require('cors')
 
 var indexRouter = require('./routes/index');
 var accountsRouter = require('./routes/accounts');
 var questionsRouter = require('./routes/questions');
-const verifyToken = require('./routes/validate-token');
 
 var app = express();
+
+// CORS
+app.use(cors());
 
 // capturar body
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -23,6 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/accounts', accountsRouter);
-app.use('/questions', verifyToken, questionsRouter);
+app.use('/questions', questionsRouter);
 
 module.exports = app;
