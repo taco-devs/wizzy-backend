@@ -11,9 +11,14 @@ const DROP_TABLE_ACCOUNT = `
     DROP table account;
 `
 
+const DROP_TABLE_ANSWER = `
+    DROP table answer;
+`
+
 const DROP_SEQ = `
     DROP SEQUENCE question_id_seq;
     DROP SEQUENCE account_id_seq;
+    DROP SEQUENCE answer_id_seq;
 `
 
 
@@ -26,12 +31,14 @@ const DROP_SEQ = `
  * @see https://node-postgres.com/features/pooling#single-query
  */
 async function query() {
+    await pool.query(DROP_TABLE_ANSWER);
+    console.log('-- DROP TABLE "answer" SUCCESSFUL');
     await pool.query(DROP_TABLE_QUESTION);
     console.log('-- DROP TABLE "question" SUCCESSFUL');
     await pool.query(DROP_TABLE_ACCOUNT);
     console.log('-- DROP TABLE "account" SUCCESSFUL');
     await pool.query(DROP_SEQ);
-    console.log('-- DROP SEQUENCES "question_id_seq, account_id_seq" SUCCESSFUL');
+    console.log('-- DROP SEQUENCES "question_id_seq, account_id_seq, answer_id_seq" SUCCESSFUL');
 }
 
 query();

@@ -6,6 +6,7 @@ const slug = require("slug");
 const short = require("short-uuid");
 const jwt = require("jsonwebtoken");
 const wizzy = require('../gpt3-module/wizzy');
+const answers = require('./answers');
 
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
@@ -22,6 +23,19 @@ async function getMultiple(page = 1) {
   }
 }
 
+async function getByAccount(slug_id) {
+  
+  const rows = await db.query(
+    ` SELECT question.question, question.slug, question.answer, question.created_at
+      FROM question, account 
+      WHERE account.slug_id = $1
+      ORDER BY question.created_at DESC
+    `,
+    [slug_id]
+  );
+
+  return rows;
+}
 
 async function getOneBySlug(slug_id) {
   const rows = await db.query(
@@ -34,7 +48,19 @@ async function getOneBySlug(slug_id) {
 
   if (rows.length < 1) return {};
 
-  return rows[0];
+  const answers = await db.query(
+    `
+      SELECT * 
+      FROM answer
+      WHERE question_id = $1
+    `,
+    [rows[0].question_id]
+  )
+
+  return {
+    ...rows[0],
+    answers
+  }
 }
 
 /*  CREATE */
@@ -97,19 +123,25 @@ async function create(req) {
     const account_id = account[0].id;
 
     const result = await db.query(
-      'INSERT INTO question(question, slug, answer, author, account_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [question.question, question_slug, answer, question.author, account_id]
+      'INSERT INTO question(question, slug, author, account_id) VALUES ($1, $2, $3, $4) RETURNING *',
+      [question.question, question_slug, question.author, account_id]
     );
     
     if (result.length) {
       message = 'Quote created successfully';
     }
+
+    const new_question = result[0];
+
+    // Insert answers
+    answers.createMultiple(answer, new_question.id);
   
     return {message, result};
 }
   
 module.exports = {
     getMultiple,
+    getByAccount,
     getOneBySlug,
     create
 }

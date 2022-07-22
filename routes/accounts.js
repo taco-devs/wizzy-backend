@@ -7,6 +7,9 @@ const jwt = require('jsonwebtoken');
 const short = require("short-uuid");
 
 const accounts = require('../services/accounts');
+const questions = require('../services/questions');
+
+const verifyToken = require('./validate-token');
 
 const accountSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -17,6 +20,23 @@ const accountSchema = Joi.object({
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
+
+// GET account questions
+router.get("/my-questions", verifyToken, async (req,res, next) => {
+
+  const token = req.headers['auth-token'];
+  const { slug_id } = jwt.decode(token);
+
+  try {
+    const data = await questions.getByAccount(slug_id);
+    res.json({
+      error: null,
+      data,
+    });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+})
 
 /* POST users Sign Up */
 router.post("/register", async (req, res) => {
@@ -62,7 +82,6 @@ router.post("/register", async (req, res) => {
 
 router.post('/login', async (req, res) => {
 
-  console.log(req.body);
   // validaciones
   const { error } = accountSchema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message })
