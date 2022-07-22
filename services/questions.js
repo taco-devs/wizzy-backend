@@ -26,8 +26,8 @@ async function getMultiple(page = 1) {
 async function getByAccount(slug_id) {
   
   const rows = await db.query(
-    ` SELECT question.question, question.slug, question.answer, question.created_at
-      FROM question, account 
+    ` SELECT question.question, question.slug, question.created_at
+      FROM account, question
       WHERE account.slug_id = $1
       ORDER BY question.created_at DESC
     `,
@@ -38,15 +38,15 @@ async function getByAccount(slug_id) {
 }
 
 async function getOneBySlug(slug_id) {
-  const rows = await db.query(
+  const questions = await db.query(
     ` SELECT *
-      FROM question, account 
+      FROM question 
       WHERE question.slug = $1
     `,
     [slug_id]
   );
 
-  if (rows.length < 1) return {};
+  if (questions.length < 1) return {};
 
   const answers = await db.query(
     `
@@ -54,11 +54,11 @@ async function getOneBySlug(slug_id) {
       FROM answer
       WHERE question_id = $1
     `,
-    [rows[0].question_id]
+    [questions[0].id]
   )
 
   return {
-    ...rows[0],
+    ...questions[0],
     answers
   }
 }

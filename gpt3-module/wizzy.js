@@ -136,9 +136,9 @@ async function get_philosopher_response({ topic }) {
 }
 
 async function ask(Q) {
-  // const answer = await get_philosopher_response({topic: Q});
+  const answer = await get_philosopher_response({topic: Q});
 
-  const answer = {
+  /* const answer = {
     responses: [
       { order_id: 0, response: "You are correct about the fact that words have some value, but only in certain situations." },
       { order_id: 1, response: "Words can give information to humans, which is a big part of our everyday life (I will talk more about this later)" },
@@ -147,7 +147,7 @@ async function ask(Q) {
       { order_id: 4, response: "If you want to know what I mean, then ask a human friend and they will explain it.I'm not sure what you mean by 'direct actions', so I won't comment on that." },
       { order_id: 5, response: "But I will try to answer the question." },
     ],
-  };
+  }; */
 
   return answer;
 }
