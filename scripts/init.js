@@ -36,9 +36,12 @@ const INIT_TABLE_ACCOUNT = `
     CREATE TABLE account (
         id bigint DEFAULT nextval('account_id_seq'::regclass) NOT NULL PRIMARY KEY,
         slug_id TEXT NOT NULL,
-        username character varying(255) NOT NULL,
-        email character varying(255) NOT NULL,
-        password TEXT NOT NULL,
+        username character varying(255) NOT NULL UNIQUE,
+        email character varying(255) UNIQUE,
+        password TEXT,
+        twitter_id character varying(255),
+        twitter_screen_name character varying(255),
+        twitter_profile_image_url_https character varying(255),
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
     );

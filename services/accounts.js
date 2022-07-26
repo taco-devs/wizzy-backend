@@ -1,40 +1,83 @@
-
-const db = require('./db');
+const db = require("./db");
 
 /* CREATE USER */
 async function createAccount(account) {
   const result = await db.query(
-    'INSERT INTO account(email, slug_id, username, password) VALUES ($1, $2, $3, $4) RETURNING *;',
+    "INSERT INTO account(email, slug_id, username, password) VALUES ($1, $2, $3, $4) RETURNING *;",
     [account.email, account.slug_id, account.username, account.password]
   );
 
-  let message = 'Error in creating account';
-  
+  let new_account;
+  let message = "Error creating account";
+
   if (result.length) {
-    message = 'Account created successfully';
+    message = "Account created Found";
+    new_account = result[0];
   }
 
-  return {message, result};
+  return { message, new_account };
+}
+
+/* CREATE USER */
+async function createTwitterAccount(account) {
+  const result = await db.query(
+    "INSERT INTO account(username, email, slug_id, twitter_id, twitter_screen_name, twitter_profile_image_url_https) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
+    [
+      account.slug_id, // use id as slug
+      account.email,
+      account.slug_id,
+      account.twitter_id,
+      account.twitter_screen_name,
+      account.twitter_profile_image_url_https,
+    ]
+  );
+
+  let message = "Error in creating account";
+
+  if (result.length) {
+    message = "Account created successfully";
+  }
+
+  return { message, result };
 }
 
 /* READ USER BY email */
 async function getAccountByEmail(account) {
 
-  const result = await db.query(
-    'SELECT * FROM account WHERE email = $1;',
-    [account.email]
-  );
+  const result = await db.query("SELECT * FROM account WHERE email = $1;", [
+    account.email,
+  ]);
 
-  let message = 'No Accounts Found';
+  let message = "No Accounts Found";
 
   if (result.length) {
-    message = 'Account Found';
+    message = "Account Found";
   }
 
-  return {message, result};
+  return { message, result };
 }
-  
+
+/* READ USER BY email */
+async function getAccountByTwitterId(twitter_id) {
+  const result = await db.query(
+    "SELECT * FROM account WHERE twitter_id = $1;",
+    [twitter_id]
+  );
+
+  let account;
+  let message = "No Accounts Found";
+
+  if (result.length) {
+    message = "Account Found";
+    account = result[0];
+  }
+
+  return { message, account };
+}
+
 module.exports = {
-    createAccount,
-    getAccountByEmail
-}
+  createAccount,
+  createTwitterAccount,
+  getAccountByEmail,
+  getAccountByTwitterId,
+};
