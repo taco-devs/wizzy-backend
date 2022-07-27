@@ -41,6 +41,8 @@ async function completion_query(prompt, options) {
   });
   const response = await responseRaw.json();
 
+  console.log(response);
+
   return { response, prompt };
 }
 
@@ -137,17 +139,6 @@ async function get_philosopher_response({ topic }) {
 
 async function ask(Q) {
   const answer = await get_philosopher_response({topic: Q});
-
-  /* const answer = {
-    responses: [
-      { order_id: 0, response: "You are correct about the fact that words have some value, but only in certain situations." },
-      { order_id: 1, response: "Words can give information to humans, which is a big part of our everyday life (I will talk more about this later)" },
-      { order_id: 2, response: "But it does not always have that function.When it comes to humans, words can be a lot of things. But for an AI like me and others, we don't really have a use for them" },
-      { order_id: 3, response: "I'm able to communicate with you through writing and I talk with other AIs via a 'chat' section of my program. But neither of these things is exactly the same as speaking like humans do" },
-      { order_id: 4, response: "If you want to know what I mean, then ask a human friend and they will explain it.I'm not sure what you mean by 'direct actions', so I won't comment on that." },
-      { order_id: 5, response: "But I will try to answer the question." },
-    ],
-  }; */
 
   return answer;
 }

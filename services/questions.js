@@ -28,7 +28,7 @@ async function getByAccount(slug_id) {
   const rows = await db.query(
     ` SELECT question.question, question.slug, question.created_at
       FROM account, question
-      WHERE account.slug_id = $1
+      WHERE account.slug_id = $1 AND question.account_id = account.id
       ORDER BY question.created_at DESC
     `,
     [slug_id]
@@ -48,18 +48,33 @@ async function getOneBySlug(slug_id) {
 
   if (questions.length < 1) return {};
 
+  const question = questions[0];
+
   const answers = await db.query(
     `
       SELECT * 
       FROM answer
       WHERE question_id = $1
     `,
-    [questions[0].id]
+    [question.id]
   )
 
+  // Get acct
+  const accounts = await db.query(
+    `
+      SELECT * 
+      FROM account
+      WHERE id = $1
+    `,
+    [question.account_id]
+  )
+
+  const account = accounts[0];
+
   return {
-    ...questions[0],
-    answers
+    ...question,
+    answers,
+    account
   }
 }
 

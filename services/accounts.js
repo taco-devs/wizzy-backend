@@ -23,7 +23,7 @@ async function createTwitterAccount(account) {
   const result = await db.query(
     "INSERT INTO account(username, email, slug_id, twitter_id, twitter_screen_name, twitter_profile_image_url_https) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
     [
-      account.slug_id, // use id as slug
+      account.username,
       account.email,
       account.slug_id,
       account.twitter_id,
@@ -58,6 +58,22 @@ async function getAccountByEmail(account) {
 }
 
 /* READ USER BY email */
+async function getAccountBySlug(slug) {
+
+  const result = await db.query("SELECT * FROM account WHERE slug_id = $1;", [
+    slug
+  ]);
+
+  let message = "No Accounts Found";
+
+  if (result.length) {
+    message = "Account Found";
+  }
+
+  return { message, result };
+}
+
+/* READ USER BY email */
 async function getAccountByTwitterId(twitter_id) {
   const result = await db.query(
     "SELECT * FROM account WHERE twitter_id = $1;",
@@ -79,5 +95,6 @@ module.exports = {
   createAccount,
   createTwitterAccount,
   getAccountByEmail,
+  getAccountBySlug,
   getAccountByTwitterId,
 };

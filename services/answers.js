@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const wizzy = require("../gpt3-module/wizzy");
 
 const createMultiple = async function (answer, question_id) {
+  console.log(answer);
   const parse_responses = answer.responses.map((response) => {
     return [response.order_id, response.response, question_id];
   });

@@ -1,15 +1,15 @@
-
 var express = require("express");
 var router = express.Router();
 const Joi = require("@hapi/joi");
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const short = require("short-uuid");
 
-const accounts = require('../services/accounts');
-const questions = require('../services/questions');
+const accounts = require("../services/accounts");
+const questions = require("../services/questions");
 
-const verifyToken = require('./validate-token');
+const verifyToken = require("./validate-token");
+const uniquenames = require("unique-names-generator");
 
 const accountSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
@@ -21,10 +21,33 @@ router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
 
-// GET account questions
-router.get("/my-questions", verifyToken, async (req,res, next) => {
+// GET Account data
+router.get("/me", verifyToken, async (req, res, next) => {
+  const token = req.headers["auth-token"];
+  const { slug_id } = jwt.decode(token);
 
-  const token = req.headers['auth-token'];
+  try {
+    const response = await accounts.getAccountBySlug(slug_id);
+
+    if (response.result.length < 1)
+      return res.status(400).json({ error: "User not found" });
+
+    const account = response.result[0];
+
+    res.json({
+      error: null,
+      data: account,
+    });
+
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ error });
+  }
+});
+
+// GET account questions
+router.get("/my-questions", verifyToken, async (req, res, next) => {
+  const token = req.headers["auth-token"];
   const { slug_id } = jwt.decode(token);
 
   try {
@@ -36,7 +59,7 @@ router.get("/my-questions", verifyToken, async (req,res, next) => {
   } catch (error) {
     res.status(400).json({ error });
   }
-})
+});
 
 /* POST users Sign Up */
 router.post("/register", async (req, res) => {
@@ -46,10 +69,10 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({ error: error.details[0].message });
   }
 
-  // Validate uniqueness 
-  const {result} = await accounts.getAccountByEmail(req.body);
+  // Validate uniqueness
+  const { result } = await accounts.getAccountByEmail(req.body);
   if (result.length > 0) {
-    return res.status(400).json({ error: 'account already exist'});
+    return res.status(400).json({ error: "account already exist" });
   }
 
   // Hash Passwords
@@ -59,9 +82,23 @@ router.post("/register", async (req, res) => {
   // Generate a random slug_id
   const slug_id = short.generate();
 
+  // generate random name
+  const numberDictionary = uniquenames.NumberDictionary.generate({
+    min: 100,
+    max: 999,
+  });
+  const shortName = uniquenames.uniqueNamesGenerator({
+    dictionaries: [
+      uniquenames.adjectives,
+      uniquenames.animals,
+      numberDictionary,
+    ],
+    style: "lowerCase",
+  });
+
   // Account Object
   const account = {
-    username: req.body.username || req.body.email,
+    username: shortName,
     slug_id,
     email: req.body.email,
     password,
@@ -80,28 +117,35 @@ router.post("/register", async (req, res) => {
 
 /* POST Login */
 
-router.post('/login', async (req, res) => {
-
+router.post("/login", async (req, res) => {
   // validaciones
   const { error } = accountSchema.validate(req.body);
-  if (error) return res.status(400).json({ error: error.details[0].message })
-  
-  const {result} = await accounts.getAccountByEmail(req.body);
-  if (result.length < 1) return res.status(400).json({ error: 'User not found' });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  const { result } = await accounts.getAccountByEmail(req.body);
+  if (result.length < 1)
+    return res.status(400).json({ error: "User not found" });
 
   const account = result[0];
 
-  const validPassword = await bcrypt.compare(req.body.password, account.password);
-  if (!validPassword) return res.status(400).json({ error: 'Invalid Password' })
-  
-  const token = jwt.sign({
-      slug_id: account.slug_id,
-  }, process.env.TOKEN_SECRET)
+  const validPassword = await bcrypt.compare(
+    req.body.password,
+    account.password
+  );
+  if (!validPassword)
+    return res.status(400).json({ error: "Invalid Password" });
 
-  res.header('auth-token', token).json({
+  const token = jwt.sign(
+    {
+      slug_id: account.slug_id,
+    },
+    process.env.TOKEN_SECRET
+  );
+
+  res.header("auth-token", token).json({
     error: null,
-    data: {token}
-  })
-})
+    data: { token },
+  });
+});
 
 module.exports = router;

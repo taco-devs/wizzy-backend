@@ -5,6 +5,7 @@ const TwitterStrategy = require("passport-twitter");
 const accounts = require("../services/accounts");
 const short = require("short-uuid");
 const jwt = require("jsonwebtoken");
+const uniquenames = require('unique-names-generator');
 
 const CLIENT_HOME_PAGE_URL = "http://localhost:3000";
 
@@ -46,6 +47,21 @@ passport.use(
 
         const slug_id = await short.generate();
 
+        // generate random name
+        const numberDictionary = uniquenames.NumberDictionary.generate({
+          min: 100,
+          max: 999,
+        });
+        const shortName = uniquenames.uniqueNamesGenerator({
+          dictionaries: [
+            uniquenames.adjectives,
+            uniquenames.animals,
+            numberDictionary,
+          ],
+          style: "lowerCase",
+        });
+
+        new_account.username = shortName;
         new_account.email = profile._json.email;
         new_account.slug_id = slug_id;
         new_account.twitter_id = profile._json.id_str;
