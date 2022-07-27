@@ -7,6 +7,8 @@ const INIT_SEQ = `
     CREATE SEQUENCE question_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
     CREATE SEQUENCE account_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
     CREATE SEQUENCE answer_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+    CREATE SEQUENCE transaction_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+    CREATE SEQUENCE answer_reply_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 `;
 
 const INIT_TABLE_QUESTION = `
@@ -14,6 +16,7 @@ const INIT_TABLE_QUESTION = `
         id bigint DEFAULT nextval('question_id_seq'::regclass) NOT NULL PRIMARY KEY,
         question TEXT NOT NULL,
         slug TEXT NOT NULL,
+        notes TEXT,
         author character varying(255) NOT NULL,
         public BOOLEAN NOT NULL DEFAULT FALSE,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -21,11 +24,13 @@ const INIT_TABLE_QUESTION = `
         account_id bigint REFERENCES account(id) NOT NULL
     );
 `;
+
 const INIT_TABLE_ANSWER = `
     CREATE TABLE answer (
         id bigint DEFAULT nextval('answer_id_seq'::regclass) NOT NULL PRIMARY KEY,
         order_id bigint NOT NULL,
         answer TEXT NOT NULL,
+        notes TEXT,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         question_id bigint REFERENCES question(id) NOT NULL
@@ -42,8 +47,34 @@ const INIT_TABLE_ACCOUNT = `
         twitter_id character varying(255),
         twitter_screen_name character varying(255),
         twitter_profile_image_url_https character varying(255),
+        balance bigint NOT NULL DEFAULT 0,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+`;
+
+const INIT_TABLE_TRANSACTION = `
+    CREATE TABLE transaction (
+        id bigint DEFAULT nextval('transaction_id_seq'::regclass) NOT NULL PRIMARY KEY,
+        amount bigint NOT NULL,
+        type TEXT NOT NULL,
+        created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        account_id bigint REFERENCES account(id) NOT NULL,
+        question_id bigint REFERENCES question(id),
+        answer_id bigint REFERENCES answer(id)
+
+    );
+`;
+
+const INIT_TABLE_ANSWER_REPLY = `
+    CREATE TABLE answerReply (
+        id bigint DEFAULT nextval('answer_reply_id_seq'::regclass) NOT NULL PRIMARY KEY,
+        type TEXT NOT NULL,
+        created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        answer_id bigint REFERENCES answer(id)
+
     );
 `;
 
@@ -70,6 +101,10 @@ async function query() {
   console.log('-- INIT TABLE "question" SUCCESSFUL');
   await pool.query(INIT_TABLE_ANSWER);
   console.log('-- INIT TABLE "answer" SUCCESSFUL');
+  await pool.query(INIT_TABLE_TRANSACTION);
+  console.log('-- INIT TABLE "transaction" SUCCESSFUL');
+  await pool.query(INIT_TABLE_ANSWER_REPLY);
+  console.log('-- INIT TABLE "answer reply" SUCCESSFUL');
   // await pool.query(INIT_INSERT);
   // console.log('-- INIT INSERT "questions" SUCCESSFUL');
 }

@@ -19,6 +19,8 @@ const DROP_SEQ = `
     DROP SEQUENCE question_id_seq;
     DROP SEQUENCE account_id_seq;
     DROP SEQUENCE answer_id_seq;
+    DROP SEQUENCE transaction_id_seq;
+    DROP SEQUENCE answer_reply_id_seq;
 `
 
 
