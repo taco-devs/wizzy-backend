@@ -114,7 +114,14 @@ async function create(req) {
     validateCreate(question);
 
     const answer = await wizzy.ask(question.question);
-    const pre_slug = slug(question.question);
+
+    let pre_slug = '';
+    if (question.question.length > 140) {
+      pre_slug = question.question.substring(0, 140);
+    } else {
+      pre_slug = slug(question.question);
+    }
+     
     const question_uuid = short.generate();
 
     const question_slug = pre_slug + "-" + question_uuid;
