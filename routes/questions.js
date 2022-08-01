@@ -14,7 +14,7 @@ router.get('/', verifyToken, async function(req, res, next) {
 });
 
 // GET specific question
-router.get('/:id', verifyToken, async function(req, res, next) {
+router.get('/:id', async function(req, res, next) {
   try {
     const question = await questions.getOneBySlug(req.params.id);
     return res.json(question);
