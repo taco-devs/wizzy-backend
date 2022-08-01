@@ -1,30 +1,30 @@
-
-const db = require('./db');
-const helper = require('../helper');
-const config = require('../config');
+const db = require("./db");
+const helper = require("../helper");
+const config = require("../config");
 const slug = require("slug");
 const short = require("short-uuid");
 const jwt = require("jsonwebtoken");
-const wizzy = require('../gpt3-module/wizzy');
-const answers = require('./answers');
+const wizzy = require("../gpt3-module/wizzy");
+const answers = require("./answers");
+const transactions = require("./transactions");
+const accounts = require("./accounts");
 
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
-    'SELECT id, question, answer, author FROM question OFFSET $1 LIMIT $2', 
+    "SELECT id, question, answer, author FROM question OFFSET $1 LIMIT $2",
     [offset, config.listPerPage]
   );
   const data = helper.emptyOrRows(rows);
-  const meta = {page};
+  const meta = { page };
 
   return {
     data,
-    meta
-  }
+    meta,
+  };
 }
 
 async function getByAccount(slug_id) {
-  
   const rows = await db.query(
     ` SELECT question.question, question.slug, question.created_at
       FROM account, question
@@ -57,7 +57,7 @@ async function getOneBySlug(slug_id) {
       WHERE question_id = $1
     `,
     [question.id]
-  )
+  );
 
   // Get acct
   const accounts = await db.query(
@@ -67,103 +67,126 @@ async function getOneBySlug(slug_id) {
       WHERE id = $1
     `,
     [question.account_id]
-  )
+  );
 
   const account = accounts[0];
 
   return {
     ...question,
     answers,
-    account
-  }
+    account,
+  };
 }
 
 /*  CREATE */
 /* Validate CREATE */
 function validateCreate(question) {
-    let messages = [];
-  
-    if (!question) {
-      messages.push('No question is provided');
-    }
-  
-    if (!question.question) { 
-      messages.push('Question is empty');
-    }
-  
-    if (!question.author) {
-      messages.push('Author is empty');
-    }
-  
-    if (question.question && question.question.length > 255) {
-      messages.push('Question cannot be longer than 255 characters');
-    }
-  
-    if (messages.length) {
-      let error = new Error(messages.join());
-      error.statusCode = 400;
-  
-      throw error;
-    }
+  let messages = [];
+
+  if (!question) {
+    messages.push("No question is provided");
+  }
+
+  if (!question.question) {
+    messages.push("Question is empty");
+  }
+
+  if (!question.author) {
+    messages.push("Author is empty");
+  }
+
+  if (question.question && question.question.length > 255) {
+    messages.push("Question cannot be longer than 255 characters");
+  }
+
+  if (messages.length) {
+    let error = new Error(messages.join());
+    error.statusCode = 400;
+
+    throw error;
+  }
+}
+
+function validateBalance(account, cost) {
+  // Validate Balance
+  if (account.balance < cost) {
+    let error = new Error("Insufficient credits");
+    error.statusCode = 400;
+
+    throw error;
+  }
 }
 
 async function create(req) {
+  const QUESTION_COST = 100;
+  const question = req.body;
 
-    const question = req.body;
+  // VALIDATE BALANCE
+  // Get account id from the one who is validating the token
+  const token = req.headers["auth-token"];
+  const { slug_id } = jwt.decode(token);
 
-    validateCreate(question);
+  // Get account from the slug
+  const account = await db.query("SELECT id, balance FROM account WHERE slug_id = $1", [
+    slug_id,
+  ]);
 
-    const answer = await wizzy.ask(question.question);
+  let message = "Error in creating question";
 
-    let pre_slug = '';
-    if (question.question.length > 140) {
-      pre_slug = question.question.substring(0, 140);
-    } else {
-      pre_slug = slug(question.question);
-    }
-     
-    const question_uuid = short.generate();
+  if (!account.length) {
+    return { message };
+  }
 
-    const question_slug = pre_slug + "-" + question_uuid;
+  const account_id = account[0].id;
 
-    // Get account id from the one who is validating the token
-    const token = req.headers['auth-token'];
-    const { slug_id } = jwt.decode(token);
+  // Run validations
+  validateBalance(account[0], QUESTION_COST);
+  validateCreate(question);
 
-    // Get account from the slug
-    const account = await db.query(
-      'SELECT id FROM account WHERE slug_id = $1',
-      [slug_id]
-    )
-    
-    let message = 'Error in creating question';
-    
-    if (!account.length) {
-      return { message };
-    }
+  const answer = await wizzy.ask(question.question);
 
-    const account_id = account[0].id;
+  let pre_slug = "";
+  if (question.question.length > 140) {
+    pre_slug = question.question.substring(0, 140);
+  } else {
+    pre_slug = slug(question.question);
+  }
 
-    const result = await db.query(
-      'INSERT INTO question(question, slug, author, account_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [question.question, question_slug, question.author, account_id]
-    );
-    
-    if (result.length) {
-      message = 'Quote created successfully';
-    }
+  const question_uuid = short.generate();
 
-    const new_question = result[0];
+  const question_slug = pre_slug + "-" + question_uuid;
 
-    // Insert answers
-    answers.createMultiple(answer, new_question.id);
-  
-    return {message, result};
+  const result = await db.query(
+    "INSERT INTO question(question, slug, author, account_id) VALUES ($1, $2, $3, $4) RETURNING *",
+    [question.question, question_slug, question.author, account_id]
+  );
+
+  if (result.length) {
+    message = "Quote created successfully";
+  }
+
+  const new_question = result[0];
+
+  // Insert answers
+  await answers.createMultiple(answer, new_question.id);
+
+  transactions.createTransaction({
+    type: "QUESTION",
+    amount: 100, // MUST BE A SYSTEM ENV
+    account_id,
+    question_id: new_question.id,
+    answer_id: null,
+  });
+
+  // UPDATE Account balance
+  await accounts.updateBalance(account_id, account[0].balance - QUESTION_COST);
+
+  return { message, result };
 }
-  
+
 module.exports = {
-    getMultiple,
-    getByAccount,
-    getOneBySlug,
-    create
-}
+  getMultiple,
+  getByAccount,
+  getOneBySlug,
+  create,
+};

@@ -48,6 +48,8 @@ const INIT_TABLE_ACCOUNT = `
         twitter_screen_name character varying(255),
         twitter_profile_image_url_https character varying(255),
         balance bigint NOT NULL DEFAULT 0,
+        verified BOOLEAN NOT NULL DEFAULT false,
+        account_token TEXT,
         created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
     );

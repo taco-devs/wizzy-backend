@@ -3,8 +3,8 @@ const db = require("./db");
 /* CREATE USER */
 async function createAccount(account) {
   const result = await db.query(
-    "INSERT INTO account(email, slug_id, username, password) VALUES ($1, $2, $3, $4) RETURNING *;",
-    [account.email, account.slug_id, account.username, account.password]
+    "INSERT INTO account(email, slug_id, username, password, account_token) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+    [account.email, account.slug_id, account.username, account.password, account.account_token]
   );
 
   let new_account;
@@ -91,10 +91,38 @@ async function getAccountByTwitterId(twitter_id) {
   return { message, account };
 }
 
+async function updateBalance(id, new_balance) {
+  const result = await db.query(
+    "UPDATE account SET balance = $1 where id = $2 RETURNING *;",
+    [new_balance, id]
+  );
+
+  let account;
+  let message = "No Accounts Updated";
+
+  if (result.length) {
+    message = "Account Found";
+    account = result[0];
+  }
+
+  return { message, account };
+}
+
+async function updateVerify(id) {
+  await db.query(
+    "UPDATE account SET verified = true where id = $1;",
+    [id]
+  );
+
+  return;
+}
+
 module.exports = {
   createAccount,
   createTwitterAccount,
   getAccountByEmail,
   getAccountBySlug,
   getAccountByTwitterId,
+  updateBalance,
+  updateVerify
 };

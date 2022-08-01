@@ -7,8 +7,6 @@ const short = require("short-uuid");
 const jwt = require("jsonwebtoken");
 const uniquenames = require('unique-names-generator');
 
-const CLIENT_HOME_PAGE_URL = "http://localhost:3000";
-
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
 passport.serializeUser(async (account, done) => {
@@ -106,7 +104,7 @@ router.get("/login/failed", (req, res) => {
 // When logout, redirect to client
 router.get("/logout", (req, res) => {
   req.logout();
-  res.redirect(CLIENT_HOME_PAGE_URL);
+  res.redirect(process.env.CLIENT_HOME_PAGE_URL);
 });
 
 // auth with twitter
@@ -129,7 +127,7 @@ router.get(
       process.env.TOKEN_SECRET
     );
 
-    res.redirect(CLIENT_HOME_PAGE_URL + "/auth?token=" + token);
+    res.redirect(process.env.CLIENT_HOME_PAGE_URL + "/auth?token=" + token);
   }
 );
 

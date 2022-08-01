@@ -7,6 +7,7 @@ const short = require("short-uuid");
 
 const accounts = require("../services/accounts");
 const questions = require("../services/questions");
+const mailer = require("../services/mailer");
 
 const verifyToken = require("./validate-token");
 const uniquenames = require("unique-names-generator");
@@ -38,9 +39,8 @@ router.get("/me", verifyToken, async (req, res, next) => {
       error: null,
       data: account,
     });
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).json({ error });
   }
 });
@@ -96,27 +96,54 @@ router.post("/register", async (req, res) => {
     style: "lowerCase",
   });
 
+  // Generate the verification token
+  const account_token = jwt.sign(
+    {
+      slug_id,
+    },
+    process.env.TOKEN_SECRET
+  );
+
   // Account Object
   const account = {
     username: shortName,
     slug_id,
     email: req.body.email,
     password,
+    account_token,
   };
 
   try {
     const data = await accounts.createAccount(account);
+    await mailer.sendConfirmationEmail(account.email, account_token);
+
     res.json({
       error: null,
       data,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error });
   }
 });
 
-/* POST Login */
+/* POST - Verify */
+router.get("/verify", async (req, res, next) => {
+  const token = req.query.token;
+  const { slug_id } = jwt.decode(token);
 
+  const query = await accounts.getAccountBySlug(slug_id);
+
+  if (query.result < 1) res.status(400).json({ error: "Invalid token" });
+
+  if (query.result[0].account_token !== token) res.status(400).json({error: "Non matching token"});
+
+  await accounts.updateVerify(query.result[0].id);
+
+  res.redirect(`${process.env.CLIENT_HOME_PAGE_URL}/login?verified=true`);
+});
+
+/* POST Login */
 router.post("/login", async (req, res) => {
   // validaciones
   const { error } = accountSchema.validate(req.body);
@@ -132,6 +159,11 @@ router.post("/login", async (req, res) => {
     req.body.password,
     account.password
   );
+
+  // Verify if account was verified successfully
+  if (!account.verified)
+    return res.status(400).json({ error: "Account not verified" });
+
   if (!validPassword)
     return res.status(400).json({ error: "Invalid Password" });
 
