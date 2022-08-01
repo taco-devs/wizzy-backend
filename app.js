@@ -53,4 +53,8 @@ app.use("/accounts", accountsRouter);
 app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
 
+// Debugging variables
+console.log('RUNNING APP -- VARIABLES');
+console.log(process.env);
+
 module.exports = app;
