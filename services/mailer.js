@@ -1,18 +1,18 @@
 var nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.mailtrap.io",
-  port: 2525,
+  host: process.env.MAILER_HOST,
+  port: process.env.MAILER_PORT,
   auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASSWORD,
+    user: process.env.MAILER_USER,
+    pass: process.env.MAILER_PASSWORD,
   }
 });
 
 const getConfirmationMessage = (email, confirmation_token) => {
   var message = {
-    from: email,
-    to: "whatever@otherdomain.com",
+    from: 'no-reply@askwizzy.ai',
+    to: email,
     subject: "WizzyAI - Please confirm your email",
     html: `
         <div>
