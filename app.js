@@ -27,7 +27,7 @@ app.use(
 // CORS
 app.use(
   cors({
-    origin: "http://localhost:3000", // allow to server to accept request from different origin
+    origin: process.env.CLIENT_HOME_PAGE_URL, // allow to server to accept request from different origin
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // allow session cookie from browser to pass through
   })
@@ -52,9 +52,5 @@ app.use("/", indexRouter);
 app.use("/accounts", accountsRouter);
 app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
-
-// Debugging variables
-console.log('RUNNING APP -- VARIABLES');
-console.log(process.env);
 
 module.exports = app;

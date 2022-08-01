@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "./bin/www",
-    "start:test": "nodemon -r dotenv/config ./bin/www",
+    "start:dev": "nodemon -r dotenv/config ./bin/www",
     "test": "DEBUG=wizzy-backend:* npm start",
     "drop": "node ./scripts/drop.js",
     "init": "node ./scripts/init.js",
