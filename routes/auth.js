@@ -2,10 +2,19 @@ var express = require("express");
 var router = express.Router();
 const passport = require("passport");
 const TwitterStrategy = require("passport-twitter");
+const LocalStrategy = require("passport-local");
 const accounts = require("../services/accounts");
 const short = require("short-uuid");
 const jwt = require("jsonwebtoken");
-const uniquenames = require('unique-names-generator');
+const uniquenames = require("unique-names-generator");
+const Joi = require("@hapi/joi");
+const bcrypt = require("bcrypt");
+const mailer = require("../services/mailer");
+
+const accountSchema = Joi.object({
+  email: Joi.string().min(6).max(255).required().email(),
+  password: Joi.string().min(6).max(1024).required(),
+});
 
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
@@ -81,6 +90,132 @@ passport.use(
   )
 );
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+      session: false,
+    },
+    async (email, password, done) => {
+      // validaciones
+
+      const { error } = accountSchema.validate({ email, password });
+      if (error)
+        return res.status(400).json({ error: error.details[0].message });
+
+      const { result } = await accounts.getAccountByEmail({ email });
+      if (result.length < 1) throw new Error();
+      //  return res.status(400).json({ error: "User not found" });
+
+      const account = result[0];
+
+      const validPassword = await bcrypt.compare(password, account.password);
+
+      // Verify if account was verified successfully
+      if (!account.verified) throw new Error();
+      // return res.status(400).json({ error: "Account not verified" });
+
+      if (!validPassword) throw new Error();
+      // return res.status(400).json({ error: "Invalid Password" });
+
+      done(null, account);
+    }
+  )
+);
+
+// GET Account data
+router.get("/token", async (req, res, next) => {
+  try {
+    if (!req.session || !req.session.passport)
+      return res.status(400).json({ error: "No active session" });
+
+    const { user } = req.session.passport;
+
+    return res.json({
+      error: null,
+      data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error });
+  }
+});
+
+// Login
+router.post(
+  "/login",
+  passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
+  function (req, res) {
+    res.redirect("/auth/login/success");
+  }
+);
+
+router.post("/register", async (req, res) => {
+  // Validate Object
+  const { error } = accountSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  // Validate uniqueness
+  const { result } = await accounts.getAccountByEmail(req.body);
+  if (result.length > 0) {
+    return res.status(400).json({ error: "account already exist" });
+  }
+
+  // Hash Passwords
+  const salt = await bcrypt.genSalt(10);
+  const password = await bcrypt.hash(req.body.password, salt);
+
+  // Generate a random slug_id
+  const slug_id = short.generate();
+
+  // generate random name
+  const numberDictionary = uniquenames.NumberDictionary.generate({
+    min: 100,
+    max: 999,
+  });
+  const shortName = uniquenames.uniqueNamesGenerator({
+    dictionaries: [
+      uniquenames.adjectives,
+      uniquenames.animals,
+      numberDictionary,
+    ],
+    style: "lowerCase",
+  });
+
+  // Generate the verification token
+  const account_token = jwt.sign(
+    {
+      slug_id,
+    },
+    process.env.TOKEN_SECRET
+  );
+
+  // Account Object
+  const account = {
+    username: shortName,
+    slug_id,
+    email: req.body.email,
+    password,
+    account_token,
+  };
+
+  try {
+    const data = await accounts.createAccount(account);
+    await mailer.sendConfirmationEmail(account.email, account_token);
+
+    res.json({
+      error: null,
+      data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error });
+  }
+});
+
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   if (req.user) {
@@ -104,7 +239,11 @@ router.get("/login/failed", (req, res) => {
 // When logout, redirect to client
 router.get("/logout", (req, res) => {
   req.logout();
-  res.redirect(process.env.CLIENT_HOME_PAGE_URL);
+  req.session = null;
+  res.json({
+    success: true,
+    message: "user has successfully logout",
+  });
 });
 
 // auth with twitter
@@ -130,5 +269,20 @@ router.get(
     res.redirect(process.env.CLIENT_HOME_PAGE_URL + "/auth?token=" + token);
   }
 );
+
+router.get("/verify", async (req, res, next) => {
+  const token = req.query.token;
+  const { slug_id } = jwt.decode(token);
+
+  const query = await accounts.getAccountBySlug(slug_id);
+
+  if (query.result < 1) res.status(400).json({ error: "Invalid token" });
+
+  if (query.result[0].account_token !== token) res.status(400).json({error: "Non matching token"});
+
+  await accounts.updateVerify(query.result[0].id);
+
+  res.redirect(`${process.env.CLIENT_HOME_PAGE_URL}/login?verified=true`);
+});
 
 module.exports = router;

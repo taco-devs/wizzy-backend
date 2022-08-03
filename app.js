@@ -7,7 +7,7 @@ var logger = require("morgan");
 var cors = require("cors");
 var passport = require("passport");
 
-const session = require("express-session");
+// const session = require("express-session");
 
 var indexRouter = require("./routes/index");
 var accountsRouter = require("./routes/accounts");
