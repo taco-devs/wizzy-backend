@@ -132,9 +132,11 @@ router.get("/token", async (req, res, next) => {
 
     const { user } = req.session.passport;
 
+    const response = await accounts.getAccountByEmail(user);
+
     return res.json({
       error: null,
-      data: user,
+      data: response.result[0],
     });
   } catch (error) {
     console.log(error);
@@ -258,15 +260,7 @@ router.get(
   }),
   function (req, res) {
     // Get JWT
-
-    const token = jwt.sign(
-      {
-        slug_id: req.user.slug_id,
-      },
-      process.env.TOKEN_SECRET
-    );
-
-    res.redirect(process.env.CLIENT_HOME_PAGE_URL + "/auth?token=" + token);
+    res.redirect(process.env.CLIENT_HOME_PAGE_URL);
   }
 );
 

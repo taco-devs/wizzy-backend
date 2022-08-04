@@ -74,6 +74,22 @@ async function getAccountBySlug(slug) {
 }
 
 /* READ USER BY email */
+async function getAccountByUsername(username) {
+
+  const result = await db.query("SELECT * FROM account WHERE username = $1;", [
+    username
+  ]);
+
+  let message = "No Accounts Found";
+
+  if (result.length) {
+    message = "Account Found";
+  }
+
+  return { message, result };
+}
+
+/* READ USER BY email */
 async function getAccountByTwitterId(twitter_id) {
   const result = await db.query(
     "SELECT * FROM account WHERE twitter_id = $1;",
@@ -120,6 +136,7 @@ async function updateVerify(id) {
 module.exports = {
   createAccount,
   createTwitterAccount,
+  getAccountByUsername,
   getAccountByEmail,
   getAccountBySlug,
   getAccountByTwitterId,

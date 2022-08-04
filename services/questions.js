@@ -118,20 +118,24 @@ function validateBalance(account, cost) {
 }
 
 async function create(req) {
+  let message = "Invalid session";
+
+  if (!req.session || !req.session.passport)
+    return {message}
+
+  const { user } = req.session.passport;
+
   const QUESTION_COST = 100;
   const question = req.body;
 
   // VALIDATE BALANCE
-  // Get account id from the one who is validating the token
-  const token = req.headers["auth-token"];
-  const { slug_id } = jwt.decode(token);
+  const { slug_id } = user;
 
   // Get account from the slug
-  const account = await db.query("SELECT id, balance FROM account WHERE slug_id = $1", [
-    slug_id,
-  ]);
-
-  let message = "Error in creating question";
+  const account = await db.query(
+    "SELECT id, balance FROM account WHERE slug_id = $1",
+    [slug_id]
+  );
 
   if (!account.length) {
     return { message };
