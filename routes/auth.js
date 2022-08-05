@@ -95,7 +95,7 @@ passport.use(
     {
       usernameField: "email",
       passwordField: "password",
-      session: true,
+      session: false,
     },
     async (email, password, done) => {
       // validaciones
