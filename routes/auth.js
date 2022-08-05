@@ -95,17 +95,17 @@ passport.use(
     {
       usernameField: "email",
       passwordField: "password",
-      session: false,
+      session: true,
     },
     async (email, password, done) => {
       // validaciones
 
       const { error } = accountSchema.validate({ email, password });
-      if (error)
-        return res.status(400).json({ error: error.details[0].message });
+
+      if (error) return done(null,null);
 
       const { result } = await accounts.getAccountByEmail({ email });
-      if (result.length < 1) throw new Error();
+      if (result.length < 1) return done(null,null);;
       //  return res.status(400).json({ error: "User not found" });
 
       const account = result[0];
@@ -113,13 +113,13 @@ passport.use(
       const validPassword = await bcrypt.compare(password, account.password);
 
       // Verify if account was verified successfully
-      if (!account.verified) throw new Error();
+      if (!account.verified) return done(null,null);
       // return res.status(400).json({ error: "Account not verified" });
 
-      if (!validPassword) throw new Error();
+      if (!validPassword) return done(null,null);
       // return res.status(400).json({ error: "Invalid Password" });
 
-      done(null, account);
+      return done(null, account);
     }
   )
 );
