@@ -21,22 +21,13 @@ app.use(
     name: "session",
     keys: [process.env.COOKIE_KEY],
     maxAge: 24 * 60 * 60 * 100,
-    sameSite: "none",
   })
 );
-
-const whitelist = [process.env.CLIENT_HOME_PAGE_URL]
 
 // CORS
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (whitelist.indexOf(origin) !== -1 || !origin) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    }, // allow to server to accept request from different origin
+    origin: [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL], // allow to server to accept request from different origin
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // allow session cookie from browser to pass through
   })
