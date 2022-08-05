@@ -95,17 +95,17 @@ passport.use(
     {
       usernameField: "email",
       passwordField: "password",
-      session: false,
+      session: true,
     },
     async (email, password, done) => {
       // validaciones
 
       const { error } = accountSchema.validate({ email, password });
 
-      if (error) return done(null,null);
+      if (error) return done(null, null);
 
       const { result } = await accounts.getAccountByEmail({ email });
-      if (result.length < 1) return done(null,null);;
+      if (result.length < 1) return done(null, null);
       //  return res.status(400).json({ error: "User not found" });
 
       const account = result[0];
@@ -113,10 +113,10 @@ passport.use(
       const validPassword = await bcrypt.compare(password, account.password);
 
       // Verify if account was verified successfully
-      if (!account.verified) return done(null,null);
+      if (!account.verified) return done(null, null);
       // return res.status(400).json({ error: "Account not verified" });
 
-      if (!validPassword) return done(null,null);
+      if (!validPassword) return done(null, null);
       // return res.status(400).json({ error: "Invalid Password" });
 
       return done(null, account);
@@ -220,13 +220,18 @@ router.post("/register", async (req, res) => {
 
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
-  if (req.user) {
-    res.json({
-      success: true,
-      message: "user has successfully authenticated",
-      user: req.user,
-      cookies: req.cookies,
-    });
+  try {
+    if (req.user) {
+      res.json({
+        success: true,
+        message: "user has successfully authenticated",
+        user: req.user,
+        cookies: req.cookies,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ error: "Error in session" });
   }
 });
 
@@ -272,7 +277,8 @@ router.get("/verify", async (req, res, next) => {
 
   if (query.result < 1) res.status(400).json({ error: "Invalid token" });
 
-  if (query.result[0].account_token !== token) res.status(400).json({error: "Non matching token"});
+  if (query.result[0].account_token !== token)
+    res.status(400).json({ error: "Non matching token" });
 
   await accounts.updateVerify(query.result[0].id);
 
