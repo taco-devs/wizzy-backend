@@ -21,13 +21,14 @@ app.use(
     name: "session",
     keys: [process.env.COOKIE_KEY],
     maxAge: 24 * 60 * 60 * 100,
+    sameSite: 'none'
   })
 );
 
 // CORS
 app.use(
   cors({
-    origin: [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL], // allow to server to accept request from different origin
+    origin: process.env.CLIENT_HOME_PAGE_URL, // allow to server to accept request from different origin
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // allow session cookie from browser to pass through
   })
