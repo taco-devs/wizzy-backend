@@ -149,13 +149,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    //return res.redirect("/auth/login/success");
-    return res.json({
-      success: true,
-      message: "user has successfully authenticated",
-      user: req.user,
-      cookies: req.cookies,
-    });
+    return res.redirect("/auth/login/success");
   }
 );
 
@@ -214,7 +208,7 @@ router.post("/register", async (req, res) => {
     const data = await accounts.createAccount(account);
     await mailer.sendConfirmationEmail(account.email, account_token);
 
-    res.json({
+    return res.json({
       error: null,
       data,
     });
@@ -228,7 +222,7 @@ router.post("/register", async (req, res) => {
 router.get("/login/success", (req, res) => {
   try {
     if (req.user) {
-      res.json({
+      return res.json({
         success: true,
         message: "user has successfully authenticated",
         user: req.user,
