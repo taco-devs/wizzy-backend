@@ -21,6 +21,10 @@ app.use(
     name: "session",
     keys: [process.env.COOKIE_KEY],
     maxAge: 24 * 60 * 60 * 100,
+    sameSite: process.env.ENV === 'dev' ? null : "none",
+    secure: process.env.ENV === 'dev' ? false : true,
+    domain: process.env.ENV === 'dev' ? null : process.env.CLIENT_HOME_PAGE_URL,
+    httpOnly: process.env.ENV === 'dev' ? true : false,
   })
 );
 

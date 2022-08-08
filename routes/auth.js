@@ -266,7 +266,7 @@ router.get(
   }),
   function (req, res) {
     // Get JWT
-    res.redirect(process.env.CLIENT_HOME_PAGE_URL);
+    return res.redirect(process.env.CLIENT_HOME_PAGE_URL);
   }
 );
 
