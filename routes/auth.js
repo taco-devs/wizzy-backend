@@ -150,6 +150,15 @@ router.post(
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
     console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
+    console.log('session:', {
+      name: "session",
+      keys: [process.env.COOKIE_KEY],
+      maxAge: 24 * 60 * 60 * 100,
+      sameSite: process.env.ENV === 'dev' ? null : "none",
+      secure: process.env.ENV === 'dev' ? false : true,
+      domain: process.env.ENV === 'dev' ? null : process.env.CLIENT_HOME_PAGE_URL,
+      httpOnly: process.env.ENV === 'dev' ? true : false,
+    })
     return res.redirect("/auth/login/success");
   }
 );

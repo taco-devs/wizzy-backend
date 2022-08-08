@@ -16,6 +16,8 @@ var authRouter = require("./routes/auth");
 
 var app = express();
 
+app.set("trust proxy", 1);
+
 app.use(
   cookieSession({
     name: "session",
