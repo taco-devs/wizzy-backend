@@ -23,11 +23,10 @@ app.use(
     name: "session",
     keys: [process.env.COOKIE_KEY],
     maxAge: 24 * 60 * 60 * 100,
-    secureProxy: process.env.ENV === 'dev' ? false : true,
-    sameSite: process.env.ENV === 'dev' ? null : "none",
-    secure: process.env.ENV === 'dev' ? false : true,
-    domain: process.env.ENV === 'dev' ? null : process.env.CLIENT_HOME_PAGE_URL,
-    httpOnly: process.env.ENV === 'dev' ? true : false,
+    sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
+    secure: process.env.ENV === 'prod',
+    domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
+    httpOnly: process.env.ENV === 'dev'
   })
 );
 
