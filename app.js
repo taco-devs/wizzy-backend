@@ -35,7 +35,7 @@ app.use(
   session({
     secret: process.env.COOKIE_KEY,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
     name: "session", // This needs to be unique per-host.
     cookie: {
