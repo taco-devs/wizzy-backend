@@ -259,7 +259,7 @@ router.get("/login/failed", (req, res) => {
 router.get("/logout", (req, res) => {
   req.logout();
   req.session = null;
-  res.json({
+  return res.json({
     success: true,
     message: "user has successfully logout",
   });

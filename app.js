@@ -1,4 +1,3 @@
-const cookieSession = require("cookie-session");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
@@ -7,8 +6,6 @@ var logger = require("morgan");
 var cors = require("cors");
 var passport = require("passport");
 var session = require("express-session");
-
-// const session = require("express-session");
 
 var indexRouter = require("./routes/index");
 var accountsRouter = require("./routes/accounts");
@@ -42,6 +39,7 @@ app.use(
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
     name: "session", // This needs to be unique per-host.
     cookie: {
+      maxAge: 24 * 60 * 60 * 100,
       secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
       httpOnly: process.env.ENV === 'dev',
       sameSite: process.env.ENV === "prod" ? 'none' : 'lax'
