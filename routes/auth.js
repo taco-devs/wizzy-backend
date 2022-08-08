@@ -149,6 +149,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
+    console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
     return res.redirect("/auth/login/success");
   }
 );
