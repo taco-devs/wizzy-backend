@@ -159,6 +159,8 @@ router.post(
       domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
       httpOnly: process.env.ENV === 'dev'
     })
+    console.log('user:', req.user);
+    console.log('cookies: ', req.cookies);
     return res.redirect("/auth/login/success");
   }
 );
