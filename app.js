@@ -6,6 +6,7 @@ const bodyparser = require("body-parser");
 var logger = require("morgan");
 var cors = require("cors");
 var passport = require("passport");
+var session = require("express-session");
 
 // const session = require("express-session");
 
@@ -16,7 +17,7 @@ var authRouter = require("./routes/auth");
 
 var app = express();
 
-app.enable("trust proxy");
+/* app.enable("trust proxy");
 
 app.use(
   cookieSession({
@@ -27,6 +28,24 @@ app.use(
     secure: process.env.ENV === 'prod',
     domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
     httpOnly: process.env.ENV === 'dev'
+  })
+);
+*/
+
+app.enable("trust proxy");
+
+app.use(
+  session({
+    secret: process.env.COOKIE_KEY,
+    resave: false,
+    saveUninitialized: true,
+    proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
+    name: "session", // This needs to be unique per-host.
+    cookie: {
+      secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
+      httpOnly: process.env.ENV === 'dev',
+      sameSite: process.env.ENV === "prod" ? 'none' : 'lax'
+    },
   })
 );
 
