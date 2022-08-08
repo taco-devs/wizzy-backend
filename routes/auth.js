@@ -131,6 +131,7 @@ router.get("/token", async (req, res, next) => {
       return res.status(400).json({ error: "No active session" });
 
     const { user } = req.session.passport;
+    req.session.save();
 
     const response = await accounts.getAccountByEmail(user);
 
