@@ -149,7 +149,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    res.redirect("/auth/login/success");
+    // res.redirect("/auth/login/success");
   }
 );
 
