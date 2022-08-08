@@ -21,7 +21,6 @@ app.use(
     name: "session",
     keys: [process.env.COOKIE_KEY],
     maxAge: 24 * 60 * 60 * 100,
-    sameSite: 'none'
   })
 );
 

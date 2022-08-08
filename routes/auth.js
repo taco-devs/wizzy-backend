@@ -19,7 +19,7 @@ const accountSchema = Joi.object({
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
 passport.serializeUser(async (account, done) => {
-  done(null, account);
+  return done(null, account);
 });
 
 // deserialize the cookieUserId to user in the database
@@ -149,13 +149,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    //res.redirect("/auth/login/success");
-    res.json({
-      success: true,
-      message: "user has successfully authenticated",
-      user: req.user,
-      cookies: req.cookies,
-    });
+    return res.redirect("/auth/login/success");
   }
 );
 
