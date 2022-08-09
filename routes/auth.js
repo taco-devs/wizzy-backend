@@ -233,6 +233,7 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
+    console.log(req);
     if (req.user) {
       return res.json({
         success: true,
@@ -240,6 +241,8 @@ router.get("/login/success", (req, res) => {
         user: req.user,
         cookies: req.cookies,
       });
+    } else {
+      return res.status(400).json({error: 'Invalid session'});
     }
   } catch (e) {
     console.log(e);
