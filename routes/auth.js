@@ -19,6 +19,7 @@ const accountSchema = Joi.object({
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
 passport.serializeUser(async (account, done) => {
+  console.log('serialize -->', account)
   return done(null, account);
 });
 
@@ -26,6 +27,8 @@ passport.serializeUser(async (account, done) => {
 passport.deserializeUser(async (account, done) => {
   // find current user
   const response = await accounts.getAccountByEmail(account);
+
+  console.log('dserialize -->', response?.result[0])
 
   if (response.result.length < 1) done(new Error("Cannot find user"));
 
@@ -149,7 +152,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
+    /* console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
     console.log('session:', {
       name: "session",
       keys: [process.env.COOKIE_KEY],
@@ -160,7 +163,7 @@ router.post(
       httpOnly: process.env.ENV === 'dev'
     })
     console.log('user:', req.user);
-    console.log('cookies: ', req.cookies);
+    console.log('cookies: ', req.cookies); */
     return res.redirect("/auth/login/success");
   }
 );
@@ -233,12 +236,11 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
-    console.log(req);
-    if (req.user) {
+    if (req.sessionID) {
       return res.json({
         success: true,
         message: "user has successfully authenticated",
-        user: req.user,
+        // user: req.user,
         cookies: req.cookies,
       });
     } else {
