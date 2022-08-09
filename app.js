@@ -12,6 +12,8 @@ var accountsRouter = require("./routes/accounts");
 var questionsRouter = require("./routes/questions");
 var authRouter = require("./routes/auth");
 
+var { pool } = require("./services/db")
+
 var app = express();
 
 /* app.enable("trust proxy");
@@ -33,6 +35,11 @@ app.set("trust proxy",1);
 
 app.use(
   session({
+    store: new (require('connect-pg-simple')(session))({
+      pool,
+      tableName: 'sessions',
+      createTableIfMissing: true,
+    }),
     secret: process.env.COOKIE_KEY,
     resave: false,
     saveUninitialized: false,

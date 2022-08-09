@@ -17,5 +17,6 @@ async function query(query, params) {
 }
 
 module.exports = {
-  query
+  query,
+  pool,
 }

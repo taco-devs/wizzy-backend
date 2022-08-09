@@ -131,8 +131,6 @@ router.get("/token", async (req, res, next) => {
       return res.status(400).json({ error: "No active session" });
 
     const { user } = req.session.passport;
-    req.session.save();
-
     const response = await accounts.getAccountByEmail(user);
 
     return res.json({
@@ -259,11 +257,15 @@ router.get("/login/failed", (req, res) => {
 // When logout, redirect to client
 router.get("/logout", (req, res) => {
   req.logout();
-  req.session = null;
-  return res.json({
+  req.session.destroy(function (err) {
+    if (err) { return next(err); }
+    // The response should indicate that the user is no longer authenticated.
+    return res.json({
     success: true,
     message: "user has successfully logout",
   });
+  });
+  
 });
 
 // auth with twitter
