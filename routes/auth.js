@@ -28,7 +28,7 @@ passport.deserializeUser(async (account, done) => {
   // find current user
   const response = await accounts.getAccountByEmail(account);
 
-  console.log('dserialize -->', response?.result[0])
+  console.log('dserialize -->', response.result[0])
 
   if (response.result.length < 1) done(new Error("Cannot find user"));
 
@@ -139,10 +139,7 @@ router.get("/token", async (req, res, next) => {
 
     return res.json({
       error: null,
-      data: {
-        user: response.result[0],
-        cookie: req.session.cookie
-      },
+      data: response.result[0],
     });
   } catch (error) {
     console.log(error);
@@ -239,10 +236,11 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
-    if (req.cookies) {
+    if (req.user) {
       return res.json({
         success: true,
         message: "user has successfully authenticated",
+        user: req.user,
         cookies: req.cookies,
       });
     } else {
