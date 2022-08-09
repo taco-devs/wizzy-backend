@@ -139,7 +139,10 @@ router.get("/token", async (req, res, next) => {
 
     return res.json({
       error: null,
-      data: response.result[0],
+      data: {
+        user: response.result[0],
+        cookie: req.session.cookie
+      },
     });
   } catch (error) {
     console.log(error);
@@ -152,7 +155,7 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    /* console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
+    console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
     console.log('session:', {
       name: "session",
       keys: [process.env.COOKIE_KEY],
@@ -163,7 +166,7 @@ router.post(
       httpOnly: process.env.ENV === 'dev'
     })
     console.log('user:', req.user);
-    console.log('cookies: ', req.cookies); */
+    console.log('cookies: ', req.cookies);
     return res.redirect("/auth/login/success");
   }
 );
@@ -236,11 +239,10 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
-    if (req.user) {
+    if (req.cookies) {
       return res.json({
         success: true,
         message: "user has successfully authenticated",
-        user: req.user,
         cookies: req.cookies,
       });
     } else {
