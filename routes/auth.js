@@ -236,11 +236,11 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
-    if (req.sessionID) {
+    if (req.user) {
       return res.json({
         success: true,
         message: "user has successfully authenticated",
-        // user: req.user,
+        user: req.user,
         cookies: req.cookies,
       });
     } else {
