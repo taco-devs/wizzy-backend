@@ -130,7 +130,7 @@ passport.use(
 // GET Account data
 router.get("/token", async (req, res, next) => {
   try {
-    console.log(req)
+    console.log(req?.session)
     if (!req.session || !req.session.passport)
       return res.status(400).json({ error: "No active session" });
 
