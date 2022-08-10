@@ -39,12 +39,11 @@ app.use(
       pool,
       tableName: 'sessions',
       createTableIfMissing: true,
-      disableTouch: true
     }),
     secret: process.env.COOKIE_KEY,
-    resave: true,
+    resave: false,
     domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost',
-    saveUninitialized: true,
+    saveUninitialized: false,
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
     name: "session", // This needs to be unique per-host.
     cookie: {
@@ -52,7 +51,7 @@ app.use(
       secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
       httpOnly: process.env.ENV === 'dev',
       sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
-      domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost'
+      // domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost'
     },
   })
 );
@@ -76,6 +75,8 @@ app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
 app.use(logger("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
