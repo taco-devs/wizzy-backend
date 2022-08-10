@@ -137,8 +137,6 @@ router.get("/token", async (req, res, next) => {
     const { user } = req.session.passport;
     const response = await accounts.getAccountByEmail(user);
 
-    await req.session.save();
-
     return res.json({
       error: null,
       data: response.result[0],

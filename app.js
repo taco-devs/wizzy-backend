@@ -69,7 +69,7 @@ app.use(
 // initalize passport
 app.use(passport.initialize());
 // deserialize cookie from the browser
-app.use(passport.session());
+app.use(passport.session({secret: process.env.COOKIE_KEY}));
 
 // capturar body
 app.use(bodyparser.urlencoded({ extended: false }));
