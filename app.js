@@ -47,7 +47,6 @@ app.use(
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
     name: "session", // This needs to be unique per-host.
     cookie: {
-      path: '/',
       maxAge: 24 * 60 * 60 * 100,
       secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
       httpOnly: process.env.ENV === 'dev',
