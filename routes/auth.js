@@ -159,7 +159,7 @@ router.post(
       maxAge: 24 * 60 * 60 * 100,
       sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
       secure: process.env.ENV === 'prod',
-      domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
+      domain: process.env.ENV === 'prod' ? process.env.CLIENT_DOMAIN : 'localhost',
       httpOnly: process.env.ENV === 'dev'
     })
     console.log('user:', req.user);
