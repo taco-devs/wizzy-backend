@@ -42,6 +42,7 @@ app.use(
     }),
     secret: process.env.COOKIE_KEY,
     resave: false,
+    domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost',
     saveUninitialized: false,
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
     name: "session", // This needs to be unique per-host.
@@ -50,7 +51,6 @@ app.use(
       secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
       httpOnly: process.env.ENV === 'dev',
       sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
-      domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost'
     },
   })
 );
