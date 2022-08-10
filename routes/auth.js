@@ -237,6 +237,7 @@ router.post("/register", async (req, res) => {
 router.get("/login/success", (req, res) => {
   try {
     console.log(req?.session);
+    console.log('auth', req.isAuthenticated())
     if (req.user) {
       return res.json({
         success: true,
