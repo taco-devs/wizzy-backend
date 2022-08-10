@@ -69,16 +69,14 @@ app.use(
 // initalize passport
 app.use(passport.initialize());
 // deserialize cookie from the browser
-app.use(passport.session({secret: process.env.COOKIE_KEY}));
+app.use(passport.session());
 
 // capturar body
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_KEY));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
