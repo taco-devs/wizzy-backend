@@ -49,7 +49,7 @@ app.use(
       maxAge: 24 * 60 * 60 * 100,
       secure: process.env.ENV === 'prod', // required for cookies to work on HTTPS
       httpOnly: process.env.ENV === 'dev',
-      sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
+      sameSite: 'lax',
       domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost'
     },
   })
