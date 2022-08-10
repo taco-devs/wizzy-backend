@@ -41,7 +41,7 @@ app.use(
       createTableIfMissing: true,
     }),
     secret: process.env.COOKIE_KEY,
-    resave: false,
+    resave: true,
     domain: process.env.ENV === "prod" ? process.env.CLIENT_DOMAIN : 'localhost',
     saveUninitialized: false,
     proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
