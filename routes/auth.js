@@ -137,6 +137,8 @@ router.get("/token", async (req, res, next) => {
     const { user } = req.session.passport;
     const response = await accounts.getAccountByEmail(user);
 
+    await req.session.save();
+
     return res.json({
       error: null,
       data: response.result[0],
@@ -159,7 +161,7 @@ router.post(
       maxAge: 24 * 60 * 60 * 100,
       sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
       secure: process.env.ENV === 'prod',
-      domain: process.env.ENV === 'prod' ? process.env.CLIENT_DOMAIN : 'localhost',
+      domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
       httpOnly: process.env.ENV === 'dev'
     })
     console.log('user:', req.user);
