@@ -16,6 +16,8 @@ var { pool } = require("./services/db")
 
 var app = express();
 
+app.use(express.static(path.join(__dirname, "public")));
+
 /* app.enable("trust proxy");
 
 app.use(
@@ -78,7 +80,6 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/accounts", accountsRouter);
