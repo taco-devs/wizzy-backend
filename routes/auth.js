@@ -19,7 +19,7 @@ const accountSchema = Joi.object({
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
 passport.serializeUser(async (account, done) => {
-  console.log('serialize -->', account)
+  console.log("serialize -->", account);
   return done(null, account);
 });
 
@@ -28,7 +28,7 @@ passport.deserializeUser(async (account, done) => {
   // find current user
   const response = await accounts.getAccountByEmail(account);
 
-  console.log('dserialize -->', response.result[0])
+  console.log("dserialize -->", response.result[0]);
 
   if (response.result.length < 1) done(new Error("Cannot find user"));
 
@@ -130,7 +130,7 @@ passport.use(
 // GET Account data
 router.get("/token", async (req, res, next) => {
   try {
-    console.log(req?.session)
+    console.log(req?.session);
     if (!req.session || !req.session.passport)
       return res.status(400).json({ error: "No active session" });
 
@@ -152,20 +152,27 @@ router.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/auth/login/failed" }),
   function (req, res) {
-    console.log('success: ', [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL]);
-    console.log('session:', {
+    console.log("success: ", [
+      process.env.CLIENT_HOME_PAGE_URL,
+      process.env.API_URL,
+    ]);
+    console.log("session:", {
       name: "session",
       keys: [process.env.COOKIE_KEY],
       maxAge: 24 * 60 * 60 * 100,
-      sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
-      secure: process.env.ENV === 'prod',
-      domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
-      httpOnly: process.env.ENV === 'dev'
-    })
-    console.log('user:', req.user);
-    console.log('cookies: ', req.cookies);
-    req.logIn();
-    return res.redirect("/auth/login/success");
+      sameSite: process.env.ENV === "prod" ? "none" : "lax",
+      secure: process.env.ENV === "prod",
+      domain:
+        process.env.ENV === "prod"
+          ? process.env.CLIENT_HOME_PAGE_URL
+          : "localhost",
+      httpOnly: process.env.ENV === "dev",
+    });
+    console.log("user:", req.user);
+    console.log("cookies: ", req.cookies);
+    return req.logIn(req.user, () => {
+      return res.redirect("/auth/login/success");
+    });
   }
 );
 
@@ -238,7 +245,7 @@ router.post("/register", async (req, res) => {
 router.get("/login/success", (req, res) => {
   try {
     console.log(req?.session);
-    console.log('auth', req.isAuthenticated())
+    console.log("auth", req.isAuthenticated());
     if (req.user) {
       return res.json({
         success: true,
@@ -247,7 +254,7 @@ router.get("/login/success", (req, res) => {
         cookies: req.cookies,
       });
     } else {
-      return res.status(400).json({error: 'Invalid session'});
+      return res.status(400).json({ error: "Invalid session" });
     }
   } catch (e) {
     console.log(e);
@@ -267,14 +274,15 @@ router.get("/login/failed", (req, res) => {
 router.get("/logout", (req, res) => {
   req.logout();
   req.session.destroy(function (err) {
-    if (err) { return next(err); }
+    if (err) {
+      return next(err);
+    }
     // The response should indicate that the user is no longer authenticated.
     return res.json({
-    success: true,
-    message: "user has successfully logout",
+      success: true,
+      message: "user has successfully logout",
+    });
   });
-  });
-  
 });
 
 // auth with twitter
