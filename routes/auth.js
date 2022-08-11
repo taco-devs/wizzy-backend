@@ -171,6 +171,7 @@ router.post(
     console.log("user:", req.user);
     console.log("cookies: ", req.cookies);
     return req.logIn(req.user, () => {
+      req.session.user = req.user;
       return res.redirect("/auth/login/success");
     });
   }
