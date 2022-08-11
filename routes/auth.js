@@ -164,6 +164,7 @@ router.post(
     })
     console.log('user:', req.user);
     console.log('cookies: ', req.cookies);
+    req.logIn();
     return res.redirect("/auth/login/success");
   }
 );
