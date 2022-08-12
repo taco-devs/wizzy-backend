@@ -164,10 +164,8 @@ router.post(
     })
     console.log('user:', req.user);
     console.log('cookies: ', req.cookies);
-    return req.session.save(() => {
-      return res.redirect("/auth/login/success");
-    })
-    
+    req.session.user = req.user;
+    return res.redirect("/auth/login/success");
   }
 );
 
@@ -239,8 +237,7 @@ router.post("/register", async (req, res) => {
 // when login is successful, retrieve user info
 router.get("/login/success", (req, res) => {
   try {
-    console.log(req);
-    //console.log(req?.session);
+    console.log(req?.session);
     console.log('auth', req.isAuthenticated())
     if (req.user) {
       return res.json({
