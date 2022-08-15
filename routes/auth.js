@@ -19,7 +19,7 @@ const accountSchema = Joi.object({
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
 passport.serializeUser(async (account, done) => {
-  console.log('serialize -->', account)
+  // console.log('serialize -->', account)
   return done(null, account);
 });
 
@@ -28,7 +28,7 @@ passport.deserializeUser(async (account, done) => {
   // find current user
   const response = await accounts.getAccountByEmail(account);
 
-  console.log('dserialize -->', response.result[0])
+  // console.log('dserialize -->', response.result[0])
 
   if (response.result.length < 1) done(new Error("Cannot find user"));
 
@@ -130,7 +130,6 @@ passport.use(
 // GET Account data
 router.get("/token", async (req, res, next) => {
   try {
-    console.log(req?.session)
     if (!req.session || !req.session.passport)
       return res.status(400).json({ error: "No active session" });
 
