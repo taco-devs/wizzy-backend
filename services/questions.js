@@ -9,6 +9,17 @@ const answers = require("./answers");
 const transactions = require("./transactions");
 const accounts = require("./accounts");
 
+async function getSitemap() {
+  const rows = await db.query(
+    ` SELECT question.slug
+      FROM question
+    `,
+    []
+  );
+
+  return rows;
+}
+
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -120,8 +131,7 @@ function validateBalance(account, cost) {
 async function create(req) {
   let message = "Invalid session";
 
-  if (!req.session || !req.session.passport)
-    return {message}
+  if (!req.session || !req.session.passport) return { message };
 
   const { user } = req.session.passport;
 
@@ -189,6 +199,7 @@ async function create(req) {
 }
 
 module.exports = {
+  getSitemap,
   getMultiple,
   getByAccount,
   getOneBySlug,

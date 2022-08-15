@@ -11,6 +11,7 @@ var indexRouter = require("./routes/index");
 var accountsRouter = require("./routes/accounts");
 var questionsRouter = require("./routes/questions");
 var authRouter = require("./routes/auth");
+var sitemapRouter = require("./routes/sitemap");
 
 var { pool } = require("./services/db")
 
@@ -85,5 +86,6 @@ app.use("/", indexRouter);
 app.use("/accounts", accountsRouter);
 app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
+app.use("/sitemap", sitemapRouter);
 
 module.exports = app;
