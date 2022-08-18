@@ -21,20 +21,17 @@ var app = express();
 
 app.use(express.static(path.join(__dirname, "public")));
 
-/* app.enable("trust proxy");
-
+// Use JSON parser for all non-webhook routes
 app.use(
-  cookieSession({
-    name: "session",
-    keys: [process.env.COOKIE_KEY],
-    maxAge: 24 * 60 * 60 * 100,
-    sameSite: process.env.ENV === "prod" ? 'none' : 'lax',
-    secure: process.env.ENV === 'prod',
-    domain: process.env.ENV === 'prod' ? process.env.CLIENT_HOME_PAGE_URL : 'localhost',
-    httpOnly: process.env.ENV === 'dev'
+  bodyparser.json({
+    verify: (req, res, buf) => {
+      const url = req.originalUrl;
+      if (url.startsWith('/api/stripe/webhook')) {
+        req.rawBody = buf.toString();
+      }
+    }
   })
 );
-*/
 
 app.set("trust proxy",1);
 
