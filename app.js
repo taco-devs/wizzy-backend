@@ -90,5 +90,6 @@ app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
 app.use("/sitemap", sitemapRouter);
 app.use("/credits", creditsRouter);
+app.use("/webhook", webhookRouter);
 
 module.exports = app;
