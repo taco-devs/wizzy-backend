@@ -5,14 +5,15 @@ const stripe = require("stripe");
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
-router.post('/', (request, response) => {
+router.post('/', async (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    event = await stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
   } catch (err) {
+    console.log(err)
     response.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
