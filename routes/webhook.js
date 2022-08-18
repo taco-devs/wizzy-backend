@@ -1,11 +1,12 @@
 const express = require('express');
 var router = express.Router();
 const stripe = require("stripe");
+const bodyparser = require("body-parser");
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
-router.post('/', async (request, response) => {
+router.post('/', bodyparser.raw({type: 'application/json'}), async (request, response) => {
   const sig = request.headers['stripe-signature'];
 
   let event;
