@@ -76,6 +76,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // capturar body
+
+// Webhook route
+app.use("/webhook", webhookRouter);
+
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
@@ -90,6 +94,5 @@ app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
 app.use("/sitemap", sitemapRouter);
 app.use("/credits", creditsRouter);
-app.use("/webhook", webhookRouter);
 
 module.exports = app;
