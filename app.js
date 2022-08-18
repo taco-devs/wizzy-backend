@@ -12,6 +12,8 @@ var accountsRouter = require("./routes/accounts");
 var questionsRouter = require("./routes/questions");
 var authRouter = require("./routes/auth");
 var sitemapRouter = require("./routes/sitemap");
+var creditsRouter = require("./routes/credits");
+var webhookRouter = require("./routes/webhook");
 
 var { pool } = require("./services/db")
 
@@ -62,7 +64,7 @@ app.use(
 // CORS
 app.use(
   cors({
-    origin: [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL], // allow to server to accept request from different origin
+    origin: [process.env.CLIENT_HOME_PAGE_URL, process.env.API_URL, 'https://stripe.com '], // allow to server to accept request from different origin
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // allow session cookie from browser to pass through
   })
@@ -87,5 +89,6 @@ app.use("/accounts", accountsRouter);
 app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
 app.use("/sitemap", sitemapRouter);
+app.use("/credits", creditsRouter);
 
 module.exports = app;
