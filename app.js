@@ -77,14 +77,18 @@ app.use(passport.session());
 
 // capturar body
 
-// Webhook route
-app.use("/webhook", webhookRouter);
-
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 
 app.use(logger("dev"));
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === '/webhook') {
+    next(); // Do nothing with the body because I need it in a raw state.
+  } else {
+    express.json()(req, res, next);  // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
+  }
+});
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -94,5 +98,7 @@ app.use("/questions", questionsRouter);
 app.use("/auth", authRouter);
 app.use("/sitemap", sitemapRouter);
 app.use("/credits", creditsRouter);
+// Webhook route
+app.use("/webhook", webhookRouter);
 
 module.exports = app;
